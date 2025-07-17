@@ -1,0 +1,9 @@
+{
+  "name": "AwesomeProject",
+  "displayName": "AwesomeProject",
+  "expo": {
+    "ios": {
+      "bundleIdentifier": "com.jgohil.awesomeproject"
+    }
+  }
+}
