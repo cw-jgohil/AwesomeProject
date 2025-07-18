@@ -5,27 +5,38 @@
  * @format
  */
 
-import {
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import React from 'react';
+import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './global.css';
 import AppNavigator from './src/navigation/AppNavigator';
+import { ToastProvider } from './src/contexts/ToastContext';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <View className="flex-1 bg-red-500">
-      <StatusBar
-        networkActivityIndicatorVisible={true}
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-      />
-      <AppNavigator />
-    </View>
+    <QueryClientProvider client={queryClient}>
+      <ToastProvider>
+        <View className="flex-1 bg-white">
+          <StatusBar
+            networkActivityIndicatorVisible={true}
+            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          />
+          <AppNavigator />
+        </View>
+      </ToastProvider>
+    </QueryClientProvider>
   );
 }
 
