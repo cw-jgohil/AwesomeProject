@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import storage from '../utils/storage';
+import { CONFIG } from '../config/config';
 
 // Extend AxiosRequestConfig to include _retry property
 declare module 'axios' {
@@ -7,18 +8,6 @@ declare module 'axios' {
     _retry?: boolean;
   }
 }
-
-// API Configuration
-const API_BASE_URL = __DEV__ 
-  ? 'http://localhost:8000' 
-  : 'https://your-production-api.com';
-
-// Storage Keys
-const STORAGE_KEYS = {
-  ACCESS_TOKEN: 'access_token',
-  REFRESH_TOKEN: 'refresh_token',
-  USER_DATA: 'user_data',
-} as const;
 
 // API Response Types
 export interface ApiResponse<T = any> {
@@ -60,8 +49,8 @@ class ApiService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: API_BASE_URL,
-      timeout: 10000,
+      baseURL: CONFIG.API.BASE_URL,
+      timeout: CONFIG.API.TIMEOUT,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -153,7 +142,7 @@ class ApiService {
   // Token Management
   private async getAccessToken(): Promise<string | null> {
     try {
-      return await storage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+      return await storage.getItem(CONFIG.STORAGE.ACCESS_TOKEN);
     } catch {
       return null;
     }
@@ -161,7 +150,7 @@ class ApiService {
 
   private async setAccessToken(token: string): Promise<void> {
     try {
-      await storage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
+      await storage.setItem(CONFIG.STORAGE.ACCESS_TOKEN, token);
     } catch (error) {
       console.error('Failed to store access token:', error);
     }
@@ -169,7 +158,7 @@ class ApiService {
 
   private async getRefreshToken(): Promise<string | null> {
     try {
-      return await storage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+      return await storage.getItem(CONFIG.STORAGE.REFRESH_TOKEN);
     } catch {
       return null;
     }
@@ -177,7 +166,7 @@ class ApiService {
 
   private async setRefreshToken(token: string): Promise<void> {
     try {
-      await storage.setItem(STORAGE_KEYS.REFRESH_TOKEN, token);
+      await storage.setItem(CONFIG.STORAGE.REFRESH_TOKEN, token);
     } catch (error) {
       console.error('Failed to store refresh token:', error);
     }
@@ -185,9 +174,9 @@ class ApiService {
 
   public async clearTokens(): Promise<void> {
     try {
-      await storage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-      await storage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-      await storage.removeItem(STORAGE_KEYS.USER_DATA);
+      await storage.removeItem(CONFIG.STORAGE.ACCESS_TOKEN);
+      await storage.removeItem(CONFIG.STORAGE.REFRESH_TOKEN);
+      await storage.removeItem(CONFIG.STORAGE.USER_DATA);
     } catch (error) {
       console.error('Failed to clear tokens:', error);
     }
@@ -196,12 +185,12 @@ class ApiService {
   // API Methods
   public async login(credentials: LoginRequest): Promise<ApiResponse<LoginData>> {
     try {
-      const response = await this.api.post<ApiResponse<LoginData>>('/users/login', credentials);
+      const response = await this.api.post<ApiResponse<LoginData>>(CONFIG.API.ENDPOINTS.AUTH.LOGIN, credentials);
       
       if (response.data.success && response.data.data) {
         await this.setAccessToken(response.data.data.access_token);
         await this.setRefreshToken(response.data.data.refresh_token);
-        await storage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.data.data.user));
+        await storage.setItem(CONFIG.STORAGE.USER_DATA, JSON.stringify(response.data.data.user));
       }
       
       return response.data;
@@ -212,7 +201,7 @@ class ApiService {
 
   public async refreshToken(refreshToken: string): Promise<ApiResponse<LoginData>> {
     try {
-      const response = await this.api.post<ApiResponse<LoginData>>('/users/refresh', {
+      const response = await this.api.post<ApiResponse<LoginData>>(CONFIG.API.ENDPOINTS.AUTH.REFRESH, {
         refresh_token: refreshToken,
       });
       return response.data;
@@ -227,7 +216,7 @@ class ApiService {
 
   public async getUserProfile(): Promise<ApiResponse<any>> {
     try {
-      const response = await this.api.get<ApiResponse<any>>('/users/me');
+      const response = await this.api.get<ApiResponse<any>>(CONFIG.API.ENDPOINTS.AUTH.ME);
       return response.data;
     } catch (error) {
       return this.handleError(error);
@@ -279,7 +268,7 @@ class ApiService {
 
   public async getUserData(): Promise<any | null> {
     try {
-      const userData = await storage.getItem(STORAGE_KEYS.USER_DATA);
+      const userData = await storage.getItem(CONFIG.STORAGE.USER_DATA);
       return userData ? JSON.parse(userData) : null;
     } catch {
       return null;

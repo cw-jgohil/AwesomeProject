@@ -13,7 +13,7 @@ import {
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/RootStack';
 import { useAppStore } from '../../store/useAppStore';
-import { authService } from '../../services/AuthService';
+import { useLogin, useIsAuthenticated } from '../../services';
 import { useToast } from '../../contexts/ToastContext';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -22,23 +22,21 @@ type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [authState, setAuthState] = useState(authService.getAuthState());
 
   const { login } = useAppStore();
   const { showToast } = useToast();
 
-  // Subscribe to auth state changes
-  useEffect(() => {
-    const unsubscribe = authService.subscribe(setAuthState);
-    return unsubscribe;
-  }, []);
+  // Use the new auth services
+  const loginMutation = useLogin();
+  const { data: isAuthenticated } = useIsAuthenticated();
 
-  // Initialize auth on mount
+  // Check if user is already authenticated
   useEffect(() => {
-    authService.initialize();
-  }, []);
+    if (isAuthenticated) {
+      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+    }
+  }, [isAuthenticated, navigation]);
 
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
@@ -46,33 +44,38 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       return;
     }
 
-    setIsLoading(true);
     try {
-      const result = await authService.login(username.trim(), password);
+      const result = await loginMutation.mutateAsync({
+        username: username.trim(),
+        password,
+      });
 
-      if (result.success) {
+      if (result.success && result.data) {
         showToast('Login successful!', 'success');
-        login(authState.user!);
+        login(result.data.user);
         navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
       } else {
         showToast(result.message, 'error');
       }
     } catch (error) {
       showToast('An unexpected error occurred', 'error');
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleGuest = async () => {
-    try {
-      const user = await authService.guest();
-      login(user);
-      showToast('Welcome as Guest!', 'info');
-      navigation.reset({ index: 0, routes: [{ name: 'Public' }] });
-    } catch (error) {
-      showToast('Failed to login as guest', 'error');
-    }
+    // For now, we'll use a mock user for guest login
+    const guestUser = {
+      id: 0,
+      username: 'guest',
+      email: 'guest@example.com',
+      full_name: 'Guest User',
+      role_id: 0,
+      is_active: true,
+    };
+
+    login(guestUser);
+    showToast('Welcome as Guest!', 'info');
+    navigation.reset({ index: 0, routes: [{ name: 'Public' }] });
   };
 
   const handlePublic = () => {
@@ -80,6 +83,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   const isFormValid = username.trim().length > 0 && password.trim().length > 0;
+  const isLoading = loginMutation.isPending;
 
   return (
     <KeyboardAvoidingView
