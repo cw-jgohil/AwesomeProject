@@ -5,7 +5,8 @@
  * @format
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import RNBootSplash from 'react-native-bootsplash';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './global.css';
@@ -24,6 +25,10 @@ const queryClient = new QueryClient({
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
+
+  useEffect(() => {
+    RNBootSplash.hide({ fade: true });
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

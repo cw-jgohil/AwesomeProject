@@ -1,9 +1,16 @@
 <resources>
-
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
     </style>
 
+    <style name="BootTheme" parent="Theme.BootSplash">
+        <item name="bootSplashBackground">@color/bootsplash_background</item>
+        <item name="bootSplashLogo">@drawable/bootsplash_logo</item>
+        <item name="postBootSplashTheme">@style/AppTheme</item>
+        <!--
+        To achieve a full-bleed splash image, ensure that bootsplash_logo.png in each drawable-* folder is a full-bleed image (no whitespace, matches device aspect ratio).
+        Android will crop images wider than 288dp, so use the largest allowed size for best results.
+        -->
+    </style>
 </resources>
