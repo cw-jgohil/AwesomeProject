@@ -1,20 +1,9 @@
-// Export API routes
+// Barrel file for user service hooks and types
+// -------------------------------------------
 export * from './userAPIRoutes';
-
-// Export React Query hooks
-export {
-  useGetUserList,
-  useGetUser,
-  useCreateUser,
-  useUpdateUser,
-  useDeleteUser,
-  userQueryKeys,
-} from './useUserAPI';
-
-// Export types
-export type {
-  User,
-  CreateUserRequest,
-  UpdateUserRequest,
-  ApiResponse,
-} from './useUserAPI'; 
+export * from './types';
+export * from './useUserList';
+export * from './useUserDetails';
+export * from './useCreateUser';
+export * from './useUpdateUser';
+export * from './useDeleteUser'; 

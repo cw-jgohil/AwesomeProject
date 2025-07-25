@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '@screens/Login/LoginScreen';
 import PublicScreen from '@screens/Public/PublicScreen';
 import PrivateScreen from '@screens/Private/PrivateScreen';
+import { useAppStore } from '../store/useAppStore';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -13,23 +14,21 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootStack = () => {
+  const isAuthenticated = useAppStore(state => state.isAuthenticated);
+
   return (
-    <Stack.Navigator id={undefined}>
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Public"
-        component={PublicScreen}
-        options={{ headerShown: true }}
-      />
-      <Stack.Screen
-        name="Home"
-        component={PrivateScreen}
-        options={{ headerShown: true }}
-      />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {isAuthenticated ? (
+        <>
+          <Stack.Screen name="Home" component={PrivateScreen} />
+          <Stack.Screen name="Public" component={PublicScreen} />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Public" component={PublicScreen} />
+        </>
+      )}
     </Stack.Navigator>
   );
 };

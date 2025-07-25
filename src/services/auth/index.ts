@@ -1,19 +1,9 @@
-// Export API routes
+// Barrel file for auth service hooks and types
+// -------------------------------------------
 export * from './authAPIRoutes';
-
-// Export React Query hooks
-export {
-  useLogin,
-  useLogout,
-  useGetUserProfile,
-  useRefreshToken,
-  useIsAuthenticated,
-  authQueryKeys,
-} from './useAuthAPI';
-
-// Export types
-export type {
-  LoginRequest,
-  LoginData,
-  ApiResponse,
-} from './useAuthAPI'; 
+export * from './types';
+export * from './useLogin';
+export * from './useLogout';
+export * from './useGetUserProfile';
+export * from './useRefreshToken';
+export * from './useIsAuthenticated'; 

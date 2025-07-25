@@ -1,19 +1,9 @@
-// Export API routes
+// Barrel file for bluetooth service hooks and types
+// -----------------------------------------------
 export * from './bluetoothAPIRoutes';
-
-// Export React Query hooks
-export {
-  useScanBluetoothDevices,
-  useConnectBluetoothDevice,
-  useDisconnectBluetoothDevice,
-  useSendBluetoothData,
-  useReceiveBluetoothData,
-  bluetoothQueryKeys,
-} from './useBluetoothAPI';
-
-// Export types
-export type {
-  BluetoothDevice,
-  BluetoothData,
-  ApiResponse,
-} from './useBluetoothAPI'; 
+export * from './types';
+export * from './useScanBluetoothDevices';
+export * from './useConnectBluetoothDevice';
+export * from './useDisconnectBluetoothDevice';
+export * from './useSendBluetoothData';
+export * from './useReceiveBluetoothData'; 

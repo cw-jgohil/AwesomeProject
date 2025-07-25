@@ -16,6 +16,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { useLogin, useIsAuthenticated } from '../../services';
 import { useToast } from '../../contexts/ToastContext';
 import Icon from 'react-native-vector-icons/Ionicons';
+import type { ApiResponse, LoginData } from '../../services/auth/types';
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -27,8 +28,21 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const { login } = useAppStore();
   const { showToast } = useToast();
 
-  // Use the new auth services
-  const loginMutation = useLogin();
+  // Destructure mutateAsync and isPending from useLogin
+  const { mutateAsync: loginMutateAsync, isPending: isLoading } = useLogin({
+    onSuccess: (result: ApiResponse<LoginData>) => {
+      if (result.success && result.data) {
+        showToast('Login successful!', 'success');
+        login(result.data.user);
+        navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+      } else {
+        showToast(result.message, 'error');
+      }
+    },
+    onError: () => {
+      showToast('An unexpected error occurred', 'error');
+    },
+  });
   const { data: isAuthenticated } = useIsAuthenticated();
 
   // Check if user is already authenticated
@@ -38,28 +52,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     }
   }, [isAuthenticated, navigation]);
 
+  // No try/catch needed, errors handled in onError
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
       showToast('Please enter both username and password', 'warning');
       return;
     }
-
-    try {
-      const result = await loginMutation.mutateAsync({
-        username: username.trim(),
-        password,
-      });
-
-      if (result.success && result.data) {
-        showToast('Login successful!', 'success');
-        login(result.data.user);
-        navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
-      } else {
-        showToast(result.message, 'error');
-      }
-    } catch (error) {
-      showToast('An unexpected error occurred', 'error');
-    }
+    await loginMutateAsync({
+      username: username.trim(),
+      password,
+    });
   };
 
   const handleGuest = async () => {
@@ -83,7 +85,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   const isFormValid = username.trim().length > 0 && password.trim().length > 0;
-  const isLoading = loginMutation.isPending;
+  // Replace all loginMutation.isPending with isLoading
+  // const isLoading = loginMutation.isPending;
 
   return (
     <KeyboardAvoidingView
