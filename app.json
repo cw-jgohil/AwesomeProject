@@ -3,7 +3,7 @@
   "displayName": "AwesomeProject",
   "expo": {
     "ios": {
-      "bundleIdentifier": "com.jgohil.awesomeproject"
+      "bundleIdentifier": "com.vikram.awesomeproject"
     }
   }
 }
