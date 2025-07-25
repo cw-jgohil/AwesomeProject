@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { User } from '@services/AuthService';
+import type { User } from '../services/user/types';
 
 interface AppState {
   count: number;
@@ -17,6 +17,6 @@ export const useAppStore = create<AppState>()((set) => ({
 
   user: null,
   isAuthenticated: false,
-  login: (user) => set({ user, isAuthenticated: !user.isGuest }),
+  login: (user) => set({ user, isAuthenticated: !!user }),
   logout: () => set({ user: null, isAuthenticated: false }),
 })); 

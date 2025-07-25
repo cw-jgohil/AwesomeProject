@@ -11,8 +11,7 @@ export {
 
 // Export all user services
 export {
-  useGetUserList,
-  useGetUser,
+  useUserList,
   useCreateUser,
   useUpdateUser,
   useDeleteUser,

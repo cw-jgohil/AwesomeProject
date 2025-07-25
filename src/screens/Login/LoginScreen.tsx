@@ -34,7 +34,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       if (result.success && result.data) {
         showToast('Login successful!', 'success');
         login(result.data.user);
-        navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+        navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
       } else {
         showToast(result.message, 'error');
       }
@@ -48,7 +48,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   // Check if user is already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+      navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
     }
   }, [isAuthenticated, navigation]);
 
